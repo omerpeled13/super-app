@@ -47,7 +47,7 @@ jobs:
 
     - name: Push MySQL Docker image
       run: |
-        docker tag mysql-container ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
+        docker tag mysql:8.0.28 ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
 
     - name: Stop Docker Compose services
