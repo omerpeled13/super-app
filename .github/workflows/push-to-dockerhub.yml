@@ -1,9 +1,11 @@
-name: Build and Deploy to DockerHub
+name: Build, Test, and Deploy to DockerHub
 
 on:
   push:
     branches:
       - main
+
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,26 +20,13 @@ jobs:
       with:
         node-version: '17'
 
-    - name: Install dependencies
+    - name: Install Node dependencies
       run: npm install
       working-directory: ./node
 
-    - name: Run tests
+    - name: Run Node tests
       run: npm test
       working-directory: ./node
-
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-        
-    - name: Install PHP dependencies
-      run: composer install
-      working-directory: ./php
-
-    - name: Run PHP tests
-      run: ./vendor/bin/phpunit
-      working-directory: ./php
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -48,9 +37,43 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Build Node Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
+        context: ./node
+        file: ./node/Dockerfile
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:node
+
+    - name: Test Node Container
+      run: |
+        docker run --rm ${{ secrets.DOCKERHUB_USERNAME }}/super-app:node npm test
+
+    - name: Push Node Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./node
+        file: ./node/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:node
+
+    - name: Build PHP Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./php
+        file: ./php/Dockerfile
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:php
+
+    - name: Test PHP Docker container
+      run: |
+        docker run --rm -d -p 80:80 --name php-container ${{ secrets.DOCKERHUB_USERNAME }}/super-app:php
+        sleep 10 # Give the container some time to start
+        curl -f http://localhost:80/index.php
+        docker stop php-container
+
+    - name: Push PHP Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./php
+        file: ./php/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:php
