@@ -1,0 +1,11 @@
+version: 0.0
+os: linux
+files:
+  # Specify which files to deploy (usually not needed for Docker deployments)
+  # - source: /path/to/source
+  #   destination: /path/to/destination
+hooks:
+  AfterInstall:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: root

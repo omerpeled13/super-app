@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Pull the Docker image from DockerHub
+docker pull omerpeled13/super-app:node
+docker pull omerpeled13/super-app:php
+docker pull omerpeled13/super-app:mysql
+
+# Run the new Docker container
+docker run -d --name my-app-container -p 80:80 your-dockerhub-username/your-repo:latest
+
+# Optionally, you can include additional setup steps here
