@@ -6,7 +6,7 @@ FROM node:17-slim
 WORKDIR /node
 
 #Copy package.json file in the node folder inside container
-COPY package*.json .
+COPY package.json .
 
 # Install the dependencies in the container
 RUN npm install
