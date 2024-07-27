@@ -45,6 +45,11 @@ jobs:
       run: |
         docker exec mysql-container mysql -uroot -ppassword -e "SHOW DATABASES;" || exit 1
 
+    - name: Push MySQL Docker image
+      run: |
+        docker tag mysql-container ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
+
     - name: Stop Docker Compose services
       run: |
         docker-compose -f docker-compose.yml down
@@ -64,3 +69,11 @@ jobs:
         file: ./php/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:php
+
+    - name: Push SQL Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./php
+        file: ./php/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:mysql
