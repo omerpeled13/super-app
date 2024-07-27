@@ -35,7 +35,7 @@ jobs:
       run: |
         docker ps -a
         sleep 10 # Give the container some time to start
-        curl -f http://localhost:3000 || exit 1
+        curl -f http://localhost:3000/super-app || exit 1
 
     - name: Test PHP Docker container
       run: |
