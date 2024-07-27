@@ -33,6 +33,7 @@ jobs:
 
     - name: Test Node Container
       run: |
+        docker ps -a
         sleep 10 # Give the container some time to start
         curl -f http://localhost:3000 || exit 1
 
