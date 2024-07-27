@@ -19,7 +19,7 @@ services:
     volumes:
       - ./node:/home/app
     ports:
-      - "9001:9001"
+      - "3000:3000"
     depends_on:
       - db
 
@@ -30,7 +30,8 @@ services:
     volumes:
       - ./php:/var/www/html
     ports:
-      - "8888:80"
+      - "80:80"
     depends_on:
       - db
       - node
+      
