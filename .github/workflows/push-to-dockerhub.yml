@@ -1,0 +1,56 @@
+name: Build and Deploy to DockerHub
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '17'
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./node
+
+    - name: Run tests
+      run: npm test
+      working-directory: ./node
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        
+    - name: Install PHP dependencies
+      run: composer install
+      working-directory: ./php
+
+    - name: Run PHP tests
+      run: ./vendor/bin/phpunit
+      working-directory: ./php
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/super-app:latest
